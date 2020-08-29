@@ -24,56 +24,65 @@ namespace NintendoSpy
 
         public SetupWindow ()
         {
-            InitializeComponent ();
-            _vm = new SetupWindowViewModel ();
-            DataContext = _vm;
-
-            if (! Directory.Exists ("skins")) {
-                MessageBox.Show ("Could not find skins folder!", "NintendoSpy", MessageBoxButton.OK, MessageBoxImage.Error);
-                Close ();
-                return;
-            }
-
-            var results = Skin.LoadAllSkinsFromParentFolder ("skins");
-            _skins = results.SkinsLoaded;
-
-            if (results.ParseErrors.Count > 0) {
-                showSkinParseErrors (results.ParseErrors);
-            }
-
-            _vm.Skins.UpdateContents (_skins.Where (x => x.Type == InputSource.DEFAULT));
-            
-
-            _vm.Sources.UpdateContents (InputSource.ALL);
-            
-
-            _vm.DelayInMilliseconds = Properties.Settings.Default.Delay;
-
-            _portListUpdateTimer = new DispatcherTimer ();
-            _portListUpdateTimer.Interval = TimeSpan.FromSeconds (1);
-            _portListUpdateTimer.Tick += (sender, e) => updatePortList ();
-            _portListUpdateTimer.Start ();
-
-            _xiAndGamepadListUpdateTimer = new DispatcherTimer();
-            _xiAndGamepadListUpdateTimer.Interval = TimeSpan.FromSeconds(2);
-            _xiAndGamepadListUpdateTimer.Tick += (sender, e) =>
+            try
             {
-                if (_vm.Sources.SelectedItem == InputSource.PAD)
-                {
-                    updateGamepadList();
-                }
-                else if (_vm.Sources.SelectedItem == InputSource.PC360)
-                {
-                    updateXIList();
-                }
-            };
-            _xiAndGamepadListUpdateTimer.Start();
 
-            updatePortList ();
-            _vm.Ports.SelectFirst ();
-            _vm.XIAndGamepad.SelectFirst();
-            _vm.Sources.SelectId(Properties.Settings.Default.Source);
-            _vm.Skins.SelectId(Properties.Settings.Default.Skin);
+                InitializeComponent();
+                _vm = new SetupWindowViewModel();
+                DataContext = _vm;
+
+                if (!Directory.Exists("skins"))
+                {
+                    MessageBox.Show("Could not find skins folder!", "NintendoSpy", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Close();
+                    return;
+                }
+
+                var results = Skin.LoadAllSkinsFromParentFolder("skins");
+                _skins = results.SkinsLoaded;
+
+                if (results.ParseErrors.Count > 0)
+                {
+                    showSkinParseErrors(results.ParseErrors);
+                }
+
+                _vm.Skins.UpdateContents(_skins.Where(x => x.Type == InputSource.DEFAULT));
+
+
+                _vm.Sources.UpdateContents(InputSource.ALL);
+
+
+                _vm.DelayInMilliseconds = Properties.Settings.Default.Delay;
+
+                _portListUpdateTimer = new DispatcherTimer();
+                _portListUpdateTimer.Interval = TimeSpan.FromSeconds(1);
+                _portListUpdateTimer.Tick += (sender, e) => updatePortList();
+                _portListUpdateTimer.Start();
+
+                _xiAndGamepadListUpdateTimer = new DispatcherTimer();
+                _xiAndGamepadListUpdateTimer.Interval = TimeSpan.FromSeconds(2);
+                _xiAndGamepadListUpdateTimer.Tick += (sender, e) =>
+                {
+                    if (_vm.Sources.SelectedItem == InputSource.PAD)
+                    {
+                        updateGamepadList();
+                    }
+                    else if (_vm.Sources.SelectedItem == InputSource.PC360)
+                    {
+                        updateXIList();
+                    }
+                };
+                _xiAndGamepadListUpdateTimer.Start();
+
+                updatePortList();
+                _vm.Ports.SelectFirst();
+                _vm.XIAndGamepad.SelectFirst();
+                _vm.Sources.SelectId(Properties.Settings.Default.Source);
+                _vm.Skins.SelectId(Properties.Settings.Default.Skin);
+            } catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message + "\n" + ex.ToString());
+            }
         }
 
         void showSkinParseErrors (List <string> errs) {
